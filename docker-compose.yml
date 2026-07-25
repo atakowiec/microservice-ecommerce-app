@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: user_service_db
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: user_service_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: ecommerce-user-service
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://user_service:user_service_password@postgres:5432/user_service_db
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: user_service_db
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: user_service_password
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
