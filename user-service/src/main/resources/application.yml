@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: "${DATABASE_URL:jdbc:postgresql://localhost:5432/user_service_db}"
+    username: "${DATABASE_USERNAME:user_service}"
+    password: "${DATABASE_PASSWORD:user_service_password}"
+  jpa:
+    hibernate:
+      ddl-auto: "${JPA_DDL_AUTO:update}"
+    open-in-view: false
+  kafka:
+    bootstrap-servers: "${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+server:
+  port: 8080

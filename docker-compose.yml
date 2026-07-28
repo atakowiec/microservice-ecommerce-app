@@ -1,7 +1,39 @@
 services:
-  postgres:
+  catalog-mongodb:
+    image: mongo:8.0
+    container_name: ecommerce-catalog-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: catalog_service
+      MONGO_INITDB_ROOT_PASSWORD: catalog_service_password
+      MONGO_INITDB_DATABASE: catalog_service_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - catalog_mongodb_data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--username",
+          "catalog_service",
+          "--password",
+          "catalog_service_password",
+           "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  user-postgres:
     image: postgres:16-alpine
-    container_name: ecommerce-postgres
+    container_name: ecommerce-user-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: user_service_db
@@ -10,25 +42,109 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - user_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_service -d user_service_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  order-postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce-order-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: order_service_db
+      POSTGRES_USER: order_service
+      POSTGRES_PASSWORD: order_service_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U order_service -d order_service_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  ecommerce-kafka:
+    image: apache/kafka:4.3.1
+    container_name: ecommerce-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: HOST://:9092,DOCKER://:19092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://ecommerce-kafka:19092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: HOST:PLAINTEXT,DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@ecommerce-kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  catalog-service:
+    build:
+      context: ./catalog-service
+    container_name: ecommerce-catalog-service
+    restart: unless-stopped
+    depends_on:
+      catalog-mongodb:
+        condition: service_healthy
+    environment:
+      MONGODB_URI: mongodb://catalog_service:catalog_service_password@catalog-mongodb:27017/catalog_service_db?authSource=admin
+    ports:
+      - "8081:8081"
 
   user-service:
     build:
-      context: .
-      dockerfile: user-service/Dockerfile
+      context: ./user-service
     container_name: ecommerce-user-service
     restart: unless-stopped
     depends_on:
-      - postgres
+      user-postgres:
+        condition: service_healthy
+      ecommerce-kafka:
+        condition: service_started
     environment:
-      DATABASE_URL: postgres://user_service:user_service_password@postgres:5432/user_service_db
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: user_service_db
-      POSTGRES_USER: user_service
-      POSTGRES_PASSWORD: user_service_password
+      DATABASE_URL: jdbc:postgresql://user-postgres:5432/user_service_db
+      DATABASE_USERNAME: user_service
+      DATABASE_PASSWORD: user_service_password
+      KAFKA_BOOTSTRAP_SERVERS: ecommerce-kafka:19092
     ports:
       - "8080:8080"
 
+  order-service:
+    build:
+      context: ./order-service
+    container_name: ecommerce-order-service
+    restart: unless-stopped
+    depends_on:
+      order-postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://order-postgres:5432/order_service_db
+      DATABASE_USERNAME: order_service
+      DATABASE_PASSWORD: order_service_password
+    ports:
+      - "8082:8082"
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: ecommerce-notification-service
+    restart: unless-stopped
+    depends_on:
+      ecommerce-kafka:
+        condition: service_started
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ecommerce-kafka:19092
+    ports:
+      - "8083:8083"
+
 volumes:
-  postgres_data:
+  catalog_mongodb_data:
+  user_postgres_data:
+  order_postgres_data:
