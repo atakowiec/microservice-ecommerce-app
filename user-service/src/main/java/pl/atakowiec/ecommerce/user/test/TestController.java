@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.atakowiec.ecommerce.user.producer.UserEventProducer;
 import pl.atakowiec.ecommerce.user.producer.event.UserMessageEvent;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -18,7 +19,8 @@ public class TestController {
     public UserMessageEvent sendMessage(@Param("message") String message) {
         UserMessageEvent event = new UserMessageEvent(
                 UUID.randomUUID(),
-                message
+                message,
+                LocalDateTime.now()
         );
 
         userEventProducer.publish(event);

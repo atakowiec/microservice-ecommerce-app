@@ -21,10 +21,10 @@ services:
           "catalog_service",
           "--password",
           "catalog_service_password",
-           "--authenticationDatabase",
+          "--authenticationDatabase",
           "admin",
           "--eval",
-          "db.adminCommand('ping')",
+          "db.adminCommand('ping')"
         ]
       interval: 10s
       timeout: 5s
@@ -86,8 +86,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   catalog-service:
-    build:
-      context: ./catalog-service
+    image: atakowiec/catalog-service:${IMAGE_TAG}
     container_name: ecommerce-catalog-service
     restart: unless-stopped
     depends_on:
@@ -99,8 +98,7 @@ services:
       - "8081:8081"
 
   user-service:
-    build:
-      context: ./user-service
+    image: atakowiec/user-service:${IMAGE_TAG}
     container_name: ecommerce-user-service
     restart: unless-stopped
     depends_on:
@@ -117,8 +115,7 @@ services:
       - "8080:8080"
 
   order-service:
-    build:
-      context: ./order-service
+    image: atakowiec/order-service:${IMAGE_TAG}
     container_name: ecommerce-order-service
     restart: unless-stopped
     depends_on:
@@ -132,8 +129,7 @@ services:
       - "8082:8082"
 
   notification-service:
-    build:
-      context: ./notification-service
+    image: atakowiec/notification-service:${IMAGE_TAG}
     container_name: ecommerce-notification-service
     restart: unless-stopped
     depends_on:
