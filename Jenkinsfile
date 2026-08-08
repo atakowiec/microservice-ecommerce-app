@@ -1,4 +1,5 @@
 def services = [
+    'api-gateway',
     'user-service',
     'catalog-service',
     'notification-service',
@@ -8,6 +9,11 @@ def services = [
 pipeline {
     agent {
         label 'docker-cloud'
+    }
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
     }
 
     environment {
@@ -20,7 +26,11 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "Building ${service}"
-                        sh "docker build -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ${service}"
+                        if (service == 'user-service') {
+                            sh "docker build -f user-service/Dockerfile -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ."
+                        } else {
+                            sh "docker build -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ${service}"
+                        }
                     }
                 }
             }
@@ -51,11 +61,25 @@ pipeline {
                 withCredentials([string(credentialsId: 'ec2-host', variable: 'EC2_HOST')]) {
                     sshagent(credentials: ['ec2-ssh-key']) {
                         sh """
+                            ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} 'mkdir -p /home/ubuntu/ecommerce'
+                            scp -o StrictHostKeyChecking=no -r k8s ubuntu@${EC2_HOST}:/home/ubuntu/ecommerce/
+
                             ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} '
-                                cd /opt/ecommerce &&
-                                export IMAGE_TAG=${BUILD_NUMBER} &&
-                                docker compose pull &&
-                                docker compose up -d --remove-orphans
+                                set -eu
+                                cd /home/ubuntu/ecommerce &&
+                                export KUBECONFIG=/home/ubuntu/.kube/config &&
+
+                                kubectl apply -f k8s/namespace.yaml &&
+                                kubectl -n ecommerce get secret ecommerce-credentials >/dev/null &&
+                                kubectl get ingressclass traefik >/dev/null &&
+                                sed -i "s/latest/${BUILD_NUMBER}/g" k8s/kustomization.yaml &&
+                                kubectl apply -k k8s &&
+
+                                kubectl -n ecommerce rollout status deployment/api-gateway --timeout=180s &&
+                                kubectl -n ecommerce rollout status deployment/user-service --timeout=180s &&
+                                kubectl -n ecommerce rollout status deployment/catalog-service --timeout=180s &&
+                                kubectl -n ecommerce rollout status deployment/notification-service --timeout=180s &&
+                                kubectl -n ecommerce rollout status deployment/order-service --timeout=180s
                             '
                         """
                     }

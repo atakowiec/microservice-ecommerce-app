@@ -94,6 +94,7 @@ services:
         condition: service_healthy
     environment:
       MONGODB_URI: mongodb://catalog_service:catalog_service_password@catalog-mongodb:27017/catalog_service_db?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}
     ports:
       - "8081:8081"
 
@@ -111,6 +112,12 @@ services:
       DATABASE_USERNAME: user_service
       DATABASE_PASSWORD: user_service_password
       KAFKA_BOOTSTRAP_SERVERS: ecommerce-kafka:19092
+      JWT_SECRET: ${JWT_SECRET:-+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}
+      AUTH_BOOTSTRAP_ENABLED: ${AUTH_BOOTSTRAP_ENABLED:-true}
+      AUTH_USER_USERNAME: ${AUTH_USER_USERNAME:-user}
+      AUTH_USER_PASSWORD: ${AUTH_USER_PASSWORD:-password}
+      AUTH_ADMIN_USERNAME: ${AUTH_ADMIN_USERNAME:-admin}
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-admin}
     ports:
       - "8080:8080"
 
@@ -125,6 +132,7 @@ services:
       DATABASE_URL: jdbc:postgresql://order-postgres:5432/order_service_db
       DATABASE_USERNAME: order_service
       DATABASE_PASSWORD: order_service_password
+      JWT_SECRET: ${JWT_SECRET:-+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}
     ports:
       - "8082:8082"
 
@@ -137,8 +145,27 @@ services:
         condition: service_started
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ecommerce-kafka:19092
+      JWT_SECRET: ${JWT_SECRET:-+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}
     ports:
       - "8083:8083"
+
+  api-gateway:
+    image: atakowiec/api-gateway:${IMAGE_TAG}
+    container_name: ecommerce-api-gateway
+    restart: unless-stopped
+    depends_on:
+      - catalog-service
+      - user-service
+      - order-service
+      - notification-service
+    environment:
+      USER_SERVICE_URL: http://user-service:8080
+      CATALOG_SERVICE_URL: http://catalog-service:8081
+      ORDER_SERVICE_URL: http://order-service:8082
+      NOTIFICATION_SERVICE_URL: http://notification-service:8083
+      JWT_SECRET: ${JWT_SECRET:-+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}
+    ports:
+      - "8000:8000"
 
 volumes:
   catalog_mongodb_data:

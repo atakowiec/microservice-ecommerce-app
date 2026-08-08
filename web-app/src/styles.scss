@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --page: #f7f6f2;
+  --surface: #ffffff;
+  --surface-subtle: #fafaf8;
+  --text-strong: #20231f;
+  --text-muted: #656b64;
+  --text-soft: #92988f;
+  --brand: #315f45;
+  --brand-strong: #234c35;
+  --brand-soft: #e8f2eb;
+  --brand-border: #c9ddce;
+  --border: #dedfd9;
+  --border-strong: #c8cbc3;
+  --danger: #b33a3a;
+  --danger-strong: #882b2b;
+  --danger-soft: #fff0ef;
+  --danger-border: #f0c5c2;
+  --radius-sm: 0.75rem;
+  --radius-md: 1.15rem;
+  --radius-lg: 1.5rem;
+  --shadow-lg: 0 1.5rem 5rem rgba(31, 38, 32, 0.1);
+  color-scheme: light;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-synthesis: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 20rem;
+  min-height: 100dvh;
+  margin: 0;
+  color: var(--text-strong);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-container {
+  width: min(100% - 2.5rem, 82rem);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--brand);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.15rem;
+  padding: 0 1.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 750;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.button--primary {
+  color: white;
+  background: var(--brand);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--brand-strong);
+}
+
+.button--secondary {
+  color: var(--text-strong);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.button--small {
+  min-height: 2.4rem;
+  padding-inline: 1rem;
+  font-size: 0.82rem;
+}
+
+.button--full {
+  width: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 45%, transparent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 34rem) {
+  .page-container {
+    width: min(100% - 2rem, 82rem);
+  }
+}

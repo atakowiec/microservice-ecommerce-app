@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: user-service
+              uri: "${USER_SERVICE_URL:http://localhost:8080}"
+              predicates:
+                - Path=/user/**
+              filters:
+                - StripPrefix=1
+            - id: catalog-service
+              uri: "${CATALOG_SERVICE_URL:http://localhost:8081}"
+              predicates:
+                - Path=/catalog/**
+              filters:
+                - StripPrefix=1
+            - id: order-service
+              uri: "${ORDER_SERVICE_URL:http://localhost:8082}"
+              predicates:
+                - Path=/order/**
+              filters:
+                - StripPrefix=1
+            - id: notification-service
+              uri: "${NOTIFICATION_SERVICE_URL:http://localhost:8083}"
+              predicates:
+                - Path=/notification/**
+              filters:
+                - StripPrefix=1
+server:
+  port: 8000
+
+auth:
+  jwt:
+    secret: "${JWT_SECRET:+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}"
+    issuer: "${JWT_ISSUER:ecommerce-user-service}"

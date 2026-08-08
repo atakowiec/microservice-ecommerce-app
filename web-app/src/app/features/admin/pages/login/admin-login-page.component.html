@@ -1,0 +1,28 @@
+<main class="admin-login">
+  <section class="admin-login__brand" aria-label="Admin portal">
+    <a routerLink="/" class="admin-logo">
+      <span>N</span>
+      <strong>Admin portal</strong>
+    </a>
+
+    <div class="admin-login__message">
+      <p class="eyebrow">Operations portal</p>
+      <h2>Management workspace.</h2>
+      <p>Secure access for administrators.</p>
+    </div>
+
+    <p class="admin-login__footer">Restricted to authorized administrators.</p>
+  </section>
+
+  <section class="admin-login__form">
+    <app-login-form
+      eyebrow="Admin portal"
+      heading="Sign in to continue"
+      description="Enter your administrator credentials to open the management workspace."
+      submitLabel="Log in"
+      [pending]="pending()"
+      [errorMessage]="errorMessage()"
+      (loginSubmitted)="login($event)"
+    />
+  </section>
+</main>

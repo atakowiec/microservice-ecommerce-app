@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+main {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}

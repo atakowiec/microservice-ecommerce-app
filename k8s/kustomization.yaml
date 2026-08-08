@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - infrastructure/databases.yaml
+  - infrastructure/kafka.yaml
+  - catalog-service/catalog-service.yaml
+  - user-service/user-service.yaml
+  - order-service/order-service.yaml
+  - notification-service/notification-service.yaml
+  - api-gateway/api-gateway-service.yaml
+  - api-gateway/api-gateway-ingress.yaml
+images:
+  - name: atakowiec/api-gateway
+    newTag: "latest"
+  - name: atakowiec/catalog-service
+    newTag: "latest"
+  - name: atakowiec/user-service
+    newTag: "latest"
+  - name: atakowiec/order-service
+    newTag: "latest"
+  - name: atakowiec/notification-service
+    newTag: "latest"
