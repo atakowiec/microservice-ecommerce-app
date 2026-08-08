@@ -34,6 +34,10 @@ spring:
 server:
   port: 8000
 
+app:
+  cors:
+    allowed-origin: "${FRONTEND_URL:http://localhost:4200}"
+
 auth:
   jwt:
     secret: "${JWT_SECRET:+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}"

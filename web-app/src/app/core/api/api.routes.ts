@@ -1,5 +1,7 @@
+import { BACKEND_URL } from './runtime-config';
+
 export const API_ROUTES = {
   auth: {
-    login: '/api/user/auth/login',
+    login: `${BACKEND_URL}/user/auth/login`,
   },
 } as const;

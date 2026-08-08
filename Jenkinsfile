@@ -1,4 +1,5 @@
 def services = [
+    'web-app',
     'api-gateway',
     'user-service',
     'catalog-service',
@@ -79,7 +80,8 @@ pipeline {
                                 kubectl -n ecommerce rollout status deployment/user-service --timeout=180s &&
                                 kubectl -n ecommerce rollout status deployment/catalog-service --timeout=180s &&
                                 kubectl -n ecommerce rollout status deployment/notification-service --timeout=180s &&
-                                kubectl -n ecommerce rollout status deployment/order-service --timeout=180s
+                                kubectl -n ecommerce rollout status deployment/order-service --timeout=180s &&
+                                kubectl -n ecommerce rollout status deployment/web-app --timeout=180s
                             '
                         """
                     }
