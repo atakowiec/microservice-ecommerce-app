@@ -35,6 +35,27 @@ spec:
                   key: user-postgres-password
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: ecommerce-kafka:9092
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-credentials
+                  key: jwt-secret
+            - name: AUTH_BOOTSTRAP_ENABLED
+              value: "true"
+            - name: AUTH_USER_USERNAME
+              value: user
+            - name: AUTH_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-credentials
+                  key: auth-user-password
+            - name: AUTH_ADMIN_USERNAME
+              value: admin
+            - name: AUTH_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-credentials
+                  key: auth-admin-password
           readinessProbe:
             tcpSocket:
               port: http

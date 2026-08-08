@@ -1,0 +1,36 @@
+<div class="admin-shell">
+  <aside>
+    <a class="admin-brand" routerLink="/admin">
+      <span class="admin-brand__mark">N</span>
+      <span>
+        <strong>Admin</strong>
+        <small>Management panel</small>
+      </span>
+    </a>
+
+    <nav aria-label="Admin navigation">
+      <p>Workspace</p>
+      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Overview
+      </a>
+    </nav>
+
+    <div class="admin-user">
+      <span class="admin-user__avatar">{{ auth.username()?.charAt(0)?.toUpperCase() }}</span>
+      <span>
+        <strong>{{ auth.username() }}</strong>
+        <small>Administrator</small>
+      </span>
+      <button type="button" (click)="signOut()" aria-label="Sign out">↗</button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header>
+      <a routerLink="/">Back to home</a>
+    </header>
+    <main>
+      <router-outlet />
+    </main>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<section class="auth-card" aria-labelledby="login-heading">
+  <div class="auth-card__intro">
+    <p class="eyebrow">{{ eyebrow() }}</p>
+    <h1 id="login-heading">{{ heading() }}</h1>
+    <p>{{ description() }}</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        placeholder="Enter your username"
+      />
+      @if (form.controls.username.touched && form.controls.username.hasError('required')) {
+        <small class="field__error">Username is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <div class="field__label-row">
+        <label for="password">Password</label>
+        <button
+          class="password-toggle"
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="passwordVisible()"
+        >
+          {{ passwordVisible() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+      <input
+        id="password"
+        [type]="passwordVisible() ? 'text' : 'password'"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+      />
+      @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+        <small class="field__error">Password is required.</small>
+      }
+    </div>
+
+    @if (errorMessage()) {
+      <div class="form-error" role="alert">{{ errorMessage() }}</div>
+    }
+
+    <button class="button button--primary button--full" type="submit" [disabled]="pending()">
+      {{ pending() ? 'Signing in…' : submitLabel() }}
+    </button>
+  </form>
+</section>

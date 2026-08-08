@@ -1,0 +1,15 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100dvh;
+  padding: 1rem;
+}
+
+.login-page > a {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  text-decoration: underline;
+}

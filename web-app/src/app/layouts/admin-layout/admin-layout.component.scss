@@ -1,0 +1,149 @@
+.admin-shell {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  min-height: 100dvh;
+  background: #f4f5f7;
+}
+
+aside {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding: 1.5rem;
+  color: #e9ecf1;
+  background: #17191f;
+}
+
+.admin-brand,
+.admin-user {
+  display: flex;
+  align-items: center;
+}
+
+.admin-brand {
+  gap: 0.75rem;
+  color: white;
+}
+
+.admin-brand__mark,
+.admin-user__avatar {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.admin-brand__mark {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: #d8ff45;
+  border-radius: 0.7rem;
+  color: #17191f;
+  font-weight: 900;
+}
+
+.admin-brand span:last-child,
+.admin-user span:nth-child(2) {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.admin-brand small,
+.admin-user small {
+  color: #8f95a3;
+  font-size: 0.7rem;
+}
+
+nav {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 3.5rem;
+}
+
+nav p {
+  margin: 0 0 0.5rem;
+  color: #737987;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+nav a {
+  padding: 0.8rem 0.9rem;
+  color: #aeb3be;
+  border-radius: 0.65rem;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+nav a:hover,
+nav a.active {
+  color: white;
+  background: #252831;
+}
+
+.admin-user {
+  gap: 0.7rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid #2a2d35;
+  font-size: 0.78rem;
+}
+
+.admin-user__avatar {
+  width: 2rem;
+  height: 2rem;
+  background: #30343e;
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+.admin-user button {
+  margin-left: auto;
+  color: #9ca2ae;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.admin-main header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 4.25rem;
+  padding: 0 2rem;
+  background: white;
+  border-bottom: 1px solid #e1e3e8;
+}
+
+.admin-main header a {
+  color: #555c69;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.admin-main main {
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+@media (max-width: 44rem) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  aside {
+    position: static;
+    height: auto;
+    padding: 1rem 1.25rem;
+  }
+
+  nav {
+    margin-top: 1.25rem;
+  }
+
+  .admin-user {
+    margin-top: 1rem;
+  }
+}

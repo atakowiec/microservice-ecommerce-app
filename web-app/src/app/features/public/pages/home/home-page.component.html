@@ -1,0 +1,9 @@
+<main aria-label="Main navigation">
+  @if (!auth.isAuthenticated()) {
+    <a routerLink="/login">Login</a>
+  }
+
+  @if (auth.hasRole('ADMIN')) {
+    <a routerLink="/admin">Admin</a>
+  }
+</main>

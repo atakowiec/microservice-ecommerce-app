@@ -12,3 +12,8 @@ spring:
 
 server:
   port: 8082
+
+auth:
+  jwt:
+    secret: "${JWT_SECRET:+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}"
+    issuer: "${JWT_ISSUER:ecommerce-user-service}"

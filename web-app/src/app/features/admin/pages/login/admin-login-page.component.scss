@@ -1,0 +1,94 @@
+.admin-login {
+  display: grid;
+  grid-template-columns: minmax(24rem, 1.05fr) minmax(28rem, 0.95fr);
+  min-height: 100dvh;
+  background: #f5f6f8;
+}
+
+.admin-login__brand {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(2rem, 5vw, 4.5rem);
+  color: white;
+  background:
+    radial-gradient(circle at 75% 24%, rgba(216, 255, 69, 0.15), transparent 26rem),
+    #17191f;
+}
+
+.admin-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: white;
+  letter-spacing: -0.025em;
+}
+
+.admin-logo span {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: #17191f;
+  background: #d8ff45;
+  border-radius: 0.75rem;
+  font-weight: 900;
+  place-items: center;
+}
+
+.admin-login__message {
+  max-width: 37rem;
+  margin-block: auto;
+}
+
+.admin-login__message .eyebrow {
+  color: #d8ff45;
+}
+
+.admin-login__message h2 {
+  margin: 0.8rem 0 1.4rem;
+  font-size: clamp(3rem, 6vw, 5.75rem);
+  line-height: 0.97;
+  letter-spacing: -0.065em;
+}
+
+.admin-login__message > p:last-child {
+  max-width: 31rem;
+  color: #aeb3be;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.admin-login__footer {
+  margin: 0;
+  color: #737987;
+  font-size: 0.75rem;
+}
+
+.admin-login__form {
+  display: grid;
+  padding: clamp(2rem, 7vw, 7rem);
+  place-items: center;
+}
+
+@media (max-width: 54rem) {
+  .admin-login {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-login__brand {
+    min-height: 22rem;
+  }
+
+  .admin-login__message {
+    margin-block: 4rem;
+  }
+
+  .admin-login__message h2 {
+    font-size: clamp(2.7rem, 10vw, 4.5rem);
+  }
+}
+
+@media (max-width: 34rem) {
+  .admin-login__form {
+    padding-inline: 1rem;
+  }
+}

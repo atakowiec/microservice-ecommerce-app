@@ -33,6 +33,11 @@ spec:
                 secretKeyRef:
                   name: ecommerce-credentials
                   key: order-postgres-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-credentials
+                  key: jwt-secret
           readinessProbe:
             tcpSocket:
               port: http

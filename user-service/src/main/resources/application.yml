@@ -12,3 +12,17 @@ spring:
 
 server:
   port: 8080
+
+auth:
+  jwt:
+    secret: "${JWT_SECRET:+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}"
+    issuer: "${JWT_ISSUER:ecommerce-user-service}"
+    ttl: PT1H
+  bootstrap:
+    enabled: "${AUTH_BOOTSTRAP_ENABLED:true}"
+    user:
+      username: "${AUTH_USER_USERNAME:user}"
+      password: "${AUTH_USER_PASSWORD:password}"
+    admin:
+      username: "${AUTH_ADMIN_USERNAME:admin}"
+      password: "${AUTH_ADMIN_PASSWORD:admin}"

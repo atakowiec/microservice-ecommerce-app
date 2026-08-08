@@ -1,0 +1,25 @@
+.not-found {
+  display: grid;
+  min-height: 100dvh;
+  place-content: center;
+  text-align: center;
+}
+
+.not-found h1 {
+  max-width: 12ch;
+  margin: 0.7rem auto 1rem;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.065em;
+}
+
+.not-found > p:not(.eyebrow) {
+  max-width: 30rem;
+  margin: 0 auto 2rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.not-found .button {
+  justify-self: center;
+}
