@@ -1,0 +1,187 @@
+<app-modal [title]="selectedUserId() ? 'Edit user' : 'Create new user'"
+           [open]="userFormModalOpen()"
+           (openChange)="userFormModalOpen.set($event)"
+           (closed)="onModalClosed()">
+    <form [formGroup]="userDetailsForm"
+          (ngSubmit)="submitUserDetailsForm()">
+
+        @if (selectedUserId()) {
+            <label>
+                Id
+                <input type="text"
+                       readonly
+                       formControlName="id"
+                       data-testid="user-form--id-input">
+            </label>
+        }
+        <label>
+            Username
+            <input type="text"
+                   formControlName="username"
+                   data-testid="user-form--username-input">
+        </label>
+        @if (userDetailsForm.controls.username.touched && userDetailsForm.controls.username.hasError("required")) {
+            <p class="field-error">Username is required.</p>
+        }
+        <label>
+            Email
+            <input type="email"
+                   formControlName="email"
+                   data-testid="user-form--email-input">
+        </label>
+        @if (userDetailsForm.controls.email.touched) {
+            @if (userDetailsForm.controls.email.hasError("required")) {
+                <p class="field-error">Email is required.</p>
+            } @else if (userDetailsForm.controls.email.hasError("email")) {
+                <p class="field-error">Enter a valid email address.</p>
+            }
+        }
+        <label>
+            Password
+            <input type="password"
+                   formControlName="password"
+                   data-testid="user-form--password-input">
+        </label>
+        @if (userDetailsForm.controls.password.touched && userDetailsForm.controls.password.hasError("required")) {
+            <p class="field-error">Password is required.</p>
+        }
+        <label>
+            Role
+            <select formControlName="role"
+                    data-testid="user-form--role-select">
+                <option>USER</option>
+                <option>ADMIN</option>
+            </select>
+        </label>
+        @if (userDetailsForm.controls.role.touched && userDetailsForm.controls.role.hasError("required")) {
+            <p class="field-error">Role is required.</p>
+        }
+        @if (userFormServerError()) {
+            <div class="form-error">
+                {{ userFormServerError() }}
+            </div>
+        }
+        <div class="flex justify-center gap-5">
+            <button class="button button--primary button--small mt-5"
+                    data-testid="user-form--submit">
+                @if (selectedUserId()) {
+                    {{ this.userFormSubmitting() ? "Saving..." : "Save user" }}
+                } @else {
+                    {{ this.userFormSubmitting() ? "Creating..." : "Create user" }}
+                }
+            </button>
+        </div>
+    </form>
+</app-modal>
+
+<app-confirmation-modal
+        title="Delete user?"
+        message="This action cannot be undone."
+        confirmLabel="Delete user"
+        pendingLabel="Deleting…"
+        intent="danger"
+        testIdPrefix="delete-user"
+        [open]="deleteModalOpen()"
+        (openChange)="deleteModalOpen.set($event)"
+        [pending]="deleting()"
+        (confirmed)="confirmDelete()"
+>
+    @if (deleteError()) {
+        <div class="admin-alert mt-4" role="alert">
+            {{ deleteError() }}
+        </div>
+    }
+</app-confirmation-modal>
+<section class="admin-page" aria-labelledby="users-heading">
+    <p class="eyebrow">User management</p>
+    <h1 id="users-heading">Registered users</h1>
+    <p class="admin-page__description">
+        View every account currently registered in the store.
+    </p>
+    <div>
+        <button
+                class="button button button--secondary button--small mt-3"
+                data-testid="add-user-modal-button"
+                (click)="openUserFormModal()"
+        >
+            Add new user
+        </button>
+    </div>
+
+    <form class="users-toolbar"
+          [formGroup]="filtersForm"
+          (ngSubmit)="applyFilters()"
+    >
+        <input type="text"
+               placeholder="Search..."
+               formControlName="query"
+               data-testid="user-search">
+        <select data-testid="role-filter"
+                formControlName="role">
+            <option value="ALL">Select role</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="USER">USER</option>
+        </select>
+        <button class="button button--primary"
+                data-testid="search-submit"
+                type="submit">
+            Search
+        </button>
+    </form>
+    @if (state$ | async; as state) {
+        @switch (state.status) {
+            @case ('loading') {
+                <div class="admin-status" aria-live="polite">Loading users...</div>
+            }
+            @case ('error') {
+                <div class="admin-status admin-alert" role="alert">
+                    Unable to load registered users. Please try again later.
+                </div>
+            }
+            @case ('loaded') {
+                @if (state.users.length === 0) {
+                    <div class="admin-status">No registered users found.</div>
+                } @else {
+                    <div class="admin-table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Username</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @for (user of state.users; track user.username) {
+                                    <tr data-testid="user-row">
+                                        <td class="admin-table__primary-cell">{{ user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            <div class="role-list">
+                                                <span class="admin-badge">{{ user.role }}</span>
+                                            </div>
+                                        </td>
+                                        <td style="width: 0; white-space: nowrap">
+                                            <button class="button button--small button--secondary"
+                                                    type="button"
+                                                    data-testid="edit-user-button"
+                                                    (click)="openUserFormModal(user.id)">
+                                                Edit user
+                                            </button>
+                                            <button class="button button--danger button--small ml-2"
+                                                    type="button"
+                                                    [attr.data-testid]="'delete-user-button-' + user.id"
+                                                    (click)="openDeleteConfirmation(user.id)">
+                                                Delete user
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
+    }
+</section>

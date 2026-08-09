@@ -25,7 +25,6 @@ import pl.atakowiec.ecommerce.user.auth.JwtService;
 
 import java.time.Instant;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,7 +53,7 @@ class AuthServiceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tokenType").value("Bearer"))
                 .andExpect(jsonPath("$.username").value("admin"))
-                .andExpect(jsonPath("$.roles", hasItem("ADMIN")))
+                .andExpect(jsonPath("$.role").value("ADMIN"))
                 .andExpect(jsonPath("$.accessToken").isNotEmpty());
     }
 
@@ -139,7 +138,7 @@ class AuthServiceTest {
             return new InMemoryUserDetailsManager(
                     User.withUsername("admin")
                             .password(passwordEncoder.encode("admin"))
-                            .roles("USER", "ADMIN")
+                            .roles("ADMIN")
                             .build()
             );
         }

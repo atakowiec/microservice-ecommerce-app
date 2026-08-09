@@ -1,0 +1,36 @@
+<app-modal
+  [title]="title()"
+  [size]="size()"
+  [testIdPrefix]="testIdPrefix()"
+  [closeOnBackdrop]="!pending()"
+  [closeOnEscape]="!pending()"
+  [(open)]="open"
+  (closed)="handleModalClosed($event)"
+>
+  <p class="confirmation-modal__message">{{ message() }}</p>
+  <ng-content />
+
+  <div modal-footer class="confirmation-modal__actions">
+    <button
+      type="button"
+      class="button button--secondary"
+      [attr.data-testid]="testId('cancel')"
+      [disabled]="pending()"
+      (click)="cancel()"
+    >
+      {{ cancelLabel() }}
+    </button>
+
+    <button
+      type="button"
+      class="button"
+      [class.button--primary]="intent() === 'default'"
+      [class.confirmation-modal__danger]="intent() === 'danger'"
+      [attr.data-testid]="testId('confirm')"
+      [disabled]="pending()"
+      (click)="confirm()"
+    >
+      {{ pending() ? pendingLabel() : confirmLabel() }}
+    </button>
+  </div>
+</app-modal>
