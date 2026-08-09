@@ -12,7 +12,7 @@ describe('AuthService', () => {
     tokenType: 'Bearer',
     expiresIn: 60,
     username: 'admin@example.com',
-    roles: ['ADMIN'],
+    role: 'ADMIN',
   };
 
   let service: AuthService;

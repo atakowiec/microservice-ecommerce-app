@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.atakowiec.ecommerce.user.account.dto.UserAccount;
+
+import java.util.List;
 
 @Service
 public class DatabaseUserDetailsService implements UserDetailsService {
@@ -25,9 +28,7 @@ public class DatabaseUserDetailsService implements UserDetailsService {
         UserAccount account = userAccountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        var authorities = account.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-                .toList();
+        var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + account.getRole().name()));
         return User.withUsername(account.getUsername())
                 .password(account.getPasswordHash())
                 .authorities(authorities)

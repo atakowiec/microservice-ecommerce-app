@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   hasRole(role: UserRole): boolean {
-    return this.sessionState()?.roles.includes(role) ?? false;
+    return this.sessionState()?.role == role;
   }
 
   getAccessToken(): string | null {
@@ -69,7 +69,6 @@ export class AuthService {
       if (
         typeof session.accessToken !== 'string' ||
         typeof session.username !== 'string' ||
-        !Array.isArray(session.roles) ||
         this.isExpired(session)
       ) {
         sessionStorage.removeItem(SESSION_STORAGE_KEY);

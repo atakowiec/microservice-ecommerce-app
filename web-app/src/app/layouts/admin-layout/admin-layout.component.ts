@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {IsActiveMatchOptions, Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
 
@@ -12,6 +12,13 @@ import { AuthService } from '../../core/auth/auth.service';
 export class AdminLayoutComponent {
   private readonly router = inject(Router);
   readonly auth = inject(AuthService);
+
+  public readonly isActiveMatchOptions: IsActiveMatchOptions = {
+    paths: 'exact',
+    queryParams: 'ignored',
+    matrixParams: 'ignored',
+    fragment: 'ignored'
+  }
 
   signOut(): void {
     this.auth.logout();
