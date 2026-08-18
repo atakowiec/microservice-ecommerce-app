@@ -14,17 +14,17 @@ import {
   take,
 } from 'rxjs';
 
-import {AdminUser} from '../../data-access/admin-user.model';
-import {AdminUsersService} from '../../data-access/admin-users.service';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {RoleFilter, AdminUserFiltersModel} from "../../data-access/admin-user-filters.model";
 import {ModalComponent} from "../../../../shared/components/modal/modal.component";
-import {CreateUserModel} from "../../data-access/create-user.model";
-import {UserRole} from "../../../../core/auth/auth.models";
-import {UpdateUserModel} from "../../data-access/update-user.model";
 import {
   ConfirmationModalComponent
 } from "../../../../shared/components/confirmation-modal/confirmation-modal.component";
+import {AdminUser} from "../../data-access/user/admin-user.model";
+import {AdminUsersService} from "../../data-access/user/admin-users.service";
+import {UserRole} from "../../../../core/auth/auth.models";
+import {AdminUserFiltersModel, RoleFilter} from "../../data-access/user/admin-user-filters.model";
+import {CreateUserModel} from "../../data-access/user/create-user.model";
+import {UpdateUserModel} from "../../data-access/user/update-user.model";
 
 type AdminUsersPageState =
   | { status: 'loading'; users: readonly AdminUser[] }

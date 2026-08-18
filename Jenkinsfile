@@ -27,10 +27,10 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "Building ${service}"
-                        if (service == 'user-service') {
-                            sh "docker build -f user-service/Dockerfile -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ."
-                        } else {
+                        if (service == 'web-app') {
                             sh "docker build -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ${service}"
+                        } else {
+                            sh "docker build -f ${service}/Dockerfile -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ."
                         }
                     }
                 }

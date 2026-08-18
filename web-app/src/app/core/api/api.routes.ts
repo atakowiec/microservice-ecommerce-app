@@ -6,5 +6,6 @@ export const API_ROUTES = {
   },
   admin: {
     users: `${BACKEND_URL}/user/admin/users`,
+    products: `${BACKEND_URL}/catalog/admin/products`,
   },
 } as const;

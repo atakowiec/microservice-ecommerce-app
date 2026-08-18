@@ -6,7 +6,8 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
-import { API_ROUTES } from '../../../core/api/api.routes';
+import { ApiResponse } from '../../../../core/api/api-response.model';
+import { API_ROUTES } from '../../../../core/api/api.routes';
 import { AdminUser } from './admin-user.model';
 import { AdminUsersService } from './admin-users.service';
 
@@ -53,7 +54,12 @@ describe('AdminUsersService', () => {
       method: 'GET',
       url: API_ROUTES.admin.users,
     });
-    request.flush(registeredUsers);
+    const response: ApiResponse<AdminUser[]> = {
+      status: 200,
+      message: 'Users retrieved successfully',
+      data: registeredUsers,
+    };
+    request.flush(response);
 
     expect(await usersPromise).toEqual(registeredUsers);
   });

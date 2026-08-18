@@ -3,9 +3,9 @@
 import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 import {of} from 'rxjs';
 
-import {AdminUser} from '../../data-access/admin-user.model';
-import {AdminUsersService} from '../../data-access/admin-users.service';
 import {AdminUsersPageComponent} from './admin-users-page.component';
+import {AdminUsersService} from "../../data-access/user/admin-users.service";
+import {AdminUser} from "../../data-access/user/admin-user.model";
 
 describe('AdminUsersPageComponent', () => {
   let registeredUsers: AdminUser[] = []

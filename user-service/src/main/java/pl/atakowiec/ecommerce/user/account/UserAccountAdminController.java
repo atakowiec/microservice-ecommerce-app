@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.atakowiec.ecommerce.user.account.dto.UserAccountCreateDto;
 import pl.atakowiec.ecommerce.user.account.dto.UserAccountDto;
 import pl.atakowiec.ecommerce.user.account.dto.UserAccountUpdateDto;
+import pl.atakowiec.ecommerce.shared.response.ApiResponse;
 
 import java.util.List;
 
@@ -16,24 +17,26 @@ public class UserAccountAdminController {
     private final UserAccountService userAccountService;
 
     @GetMapping()
-    public List<UserAccountDto> getUsers(@RequestParam(value = "query", required = false) String query,
-                                         @RequestParam(value = "role", required = false) String role) {
-        return userAccountService.searchUsers(query, role);
+    public ApiResponse<List<UserAccountDto>> getUsers(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "role", required = false) String role
+    ) {
+        return ApiResponse.ok("Users retrieved successfully", userAccountService.searchUsers(query, role));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserAccountDto createUser(@RequestBody UserAccountCreateDto createDto) {
-        return userAccountService.createUser(createDto);
+    public ApiResponse<UserAccountDto> createUser(@RequestBody UserAccountCreateDto createDto) {
+        return ApiResponse.created("User created successfully", userAccountService.createUser(createDto));
     }
 
     @PatchMapping
-    public UserAccountDto updateUser(@RequestBody UserAccountUpdateDto updateDto) {
-        return userAccountService.updateUser(updateDto);
+    public ApiResponse<UserAccountDto> updateUser(@RequestBody UserAccountUpdateDto updateDto) {
+        return ApiResponse.ok("User updated successfully", userAccountService.updateUser(updateDto));
     }
 
     @DeleteMapping("")
-    public UserAccountDto deleteUser(@RequestParam("id") Long userId) {
-        return userAccountService.deleteUser(userId);
+    public ApiResponse<UserAccountDto> deleteUser(@RequestParam("id") Long userId) {
+        return ApiResponse.ok("User deleted successfully", userAccountService.deleteUser(userId));
     }
 }

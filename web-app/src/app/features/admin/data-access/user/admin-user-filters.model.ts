@@ -1,4 +1,4 @@
-import {UserRole} from "../../../core/auth/auth.models";
+import {UserRole} from "../../../../core/auth/auth.models";
 
 export type RoleFilter = UserRole | 'ALL';
 

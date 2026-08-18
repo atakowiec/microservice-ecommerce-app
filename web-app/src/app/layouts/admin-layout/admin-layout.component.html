@@ -9,9 +9,12 @@
         </a>
 
         <nav aria-label="Admin navigation">
-            <p>Workspace</p>
+            <p>Store</p>
             <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="isActiveMatchOptions">
                 Overview
+            </a>
+            <a routerLink="/admin/products" routerLinkActive="active" [routerLinkActiveOptions]="isActiveMatchOptions">
+                Product list
             </a>
             <p>Users</p>
             <a routerLink="/admin/users" routerLinkActive="active" [routerLinkActiveOptions]="isActiveMatchOptions">

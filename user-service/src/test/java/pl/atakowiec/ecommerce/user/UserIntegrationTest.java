@@ -65,8 +65,8 @@ class UserIntegrationTest {
                         .queryParam("query", "alicia")
                         .with(adminJwt()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].username").value("alicia-admin"));
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].username").value("alicia-admin"));
     }
 
     @Test
@@ -75,8 +75,8 @@ class UserIntegrationTest {
                         .queryParam("query", "alice-admin@shop.com")
                         .with(adminJwt()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].username").value("root"));
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].username").value("root"));
     }
 
     @Test
@@ -85,8 +85,8 @@ class UserIntegrationTest {
                         .queryParam("role", "ADMIN")
                         .with(adminJwt()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].username",
+                .andExpect(jsonPath("$.data", hasSize(2)))
+                .andExpect(jsonPath("$.data[*].username",
                         containsInAnyOrder("alicia-admin", "root")));
     }
 
@@ -96,8 +96,8 @@ class UserIntegrationTest {
                         .queryParam("role", "USER")
                         .with(adminJwt()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].username",
+                .andExpect(jsonPath("$.data", hasSize(2)))
+                .andExpect(jsonPath("$.data[*].username",
                         containsInAnyOrder("alice", "bob")));
     }
 
@@ -108,8 +108,8 @@ class UserIntegrationTest {
                         .queryParam("role", "ADMIN")
                         .with(adminJwt()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].username",
+                .andExpect(jsonPath("$.data", hasSize(2)))
+                .andExpect(jsonPath("$.data[*].username",
                         containsInAnyOrder("alicia-admin", "root")));
     }
 
@@ -128,10 +128,12 @@ class UserIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(adminJwt()))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username", equalTo("new_user")))
-                .andExpect(jsonPath("$.email", equalTo("new_user@cieszczyk.pl")))
-                .andExpect(jsonPath("$.role", equalTo("ADMIN")))
-                .andExpect(jsonPath("$.id", notNullValue()));
+                .andExpect(jsonPath("$.status").value(201))
+                .andExpect(jsonPath("$.message").value("User created successfully"))
+                .andExpect(jsonPath("$.data.username", equalTo("new_user")))
+                .andExpect(jsonPath("$.data.email", equalTo("new_user@cieszczyk.pl")))
+                .andExpect(jsonPath("$.data.role", equalTo("ADMIN")))
+                .andExpect(jsonPath("$.data.id", notNullValue()));
 
         UserAccount persistedAccount = userAccountRepository
                 .findByUsername("new_user")

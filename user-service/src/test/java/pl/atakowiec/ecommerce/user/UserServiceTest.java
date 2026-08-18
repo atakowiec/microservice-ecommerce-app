@@ -22,6 +22,7 @@ import pl.atakowiec.ecommerce.user.auth.AuthService;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -64,11 +65,13 @@ class UserServiceTest {
         mockMvc.perform(get("/admin/users")
                         .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].username").value("user"))
-                .andExpect(jsonPath("$[1].username").value("admin"))
-                .andExpect(jsonPath("$[0].email").value("user@cieszczyk.pl"))
-                .andExpect(jsonPath("$[1].email").value("admin@cieszczyk.pl"));
+                .andExpect(jsonPath("$.status").value(200))
+                .andExpect(jsonPath("$.message").value("Users retrieved successfully"))
+                .andExpect(jsonPath("$.data", hasSize(2)))
+                .andExpect(jsonPath("$.data[0].username").value("user"))
+                .andExpect(jsonPath("$.data[1].username").value("admin"))
+                .andExpect(jsonPath("$.data[0].email").value("user@cieszczyk.pl"))
+                .andExpect(jsonPath("$.data[1].email").value("admin@cieszczyk.pl"));
     }
 
     @Test
@@ -86,6 +89,16 @@ class UserServiceTest {
                 Role.ADMIN
         );
         when(userAccountRepository.findAll()).thenReturn(List.of(regularUser, admin));
+    }
+
+    @Test
+    void regularUserReceivesUnifiedForbiddenResponseForAdminEndpoint() throws Exception {
+        mockMvc.perform(get("/admin/users")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_USER"))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.message").value("Access is denied"))
+                .andExpect(jsonPath("$.data").value(nullValue()));
     }
 
     @TestConfiguration(proxyBeanMethods = false)
