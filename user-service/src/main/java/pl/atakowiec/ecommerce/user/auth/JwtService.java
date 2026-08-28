@@ -13,6 +13,7 @@ import pl.atakowiec.ecommerce.user.auth.dto.LoginResponse;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -33,13 +34,13 @@ public class JwtService {
     }
 
     public LoginResponse issueToken(UserDetails user) {
-        String role = user.getAuthorities().stream()
+        List<String> roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(Objects::nonNull)
                 .map(authority -> authority.replaceFirst("^ROLE_", ""))
-                .findAny()
-                .orElse("USER");
-
+                .sorted()
+                .toList();
+        String scope = String.join(" ", roles);
         Instant issuedAt = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -47,11 +48,11 @@ public class JwtService {
                 .subject(user.getUsername())
                 .issuedAt(issuedAt)
                 .expiresAt(issuedAt.plus(tokenTtl))
-                .claim("scope", role)
+                .claim("scope", scope)
                 .build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
 
-        return new LoginResponse(token, "Bearer", tokenTtl.toSeconds(), user.getUsername(), role);
+        return new LoginResponse(token, "Bearer", tokenTtl.toSeconds(), user.getUsername(), roles);
     }
 }

@@ -25,7 +25,7 @@ import pl.atakowiec.ecommerce.user.auth.JwtService;
 
 import java.time.Instant;
 
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,30 +52,26 @@ class AuthServiceTest {
     void validAdminCredentialsReturnAdminToken() throws Exception {
         mockMvc.perform(loginRequest("admin", "admin"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(200))
-                .andExpect(jsonPath("$.message").value("Login successful"))
-                .andExpect(jsonPath("$.data.tokenType").value("Bearer"))
-                .andExpect(jsonPath("$.data.username").value("admin"))
-                .andExpect(jsonPath("$.data.role").value("ADMIN"))
-                .andExpect(jsonPath("$.data.accessToken").isNotEmpty());
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.username").value("admin"))
+                .andExpect(jsonPath("$.roles", hasItem("ADMIN")))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty());
     }
 
     @Test
     void invalidUsernameAndInvalidPasswordReturnTheSameGenericError() throws Exception {
         String wrongPasswordResponse = mockMvc.perform(loginRequest("admin", "wrong-password"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.code").value("invalid_credentials"))
                 .andExpect(jsonPath("$.message").value("Invalid username or password"))
-                .andExpect(jsonPath("$.data.code").value("invalid_credentials"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
         String unknownUserResponse = mockMvc.perform(loginRequest("unknown", "admin"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.code").value("invalid_credentials"))
                 .andExpect(jsonPath("$.message").value("Invalid username or password"))
-                .andExpect(jsonPath("$.data.code").value("invalid_credentials"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -89,10 +85,7 @@ class AuthServiceTest {
     void expiredTokenRequiresReauthentication() throws Exception {
         mockMvc.perform(get("/test")
                         .header("Authorization", "Bearer " + expiredAdminToken()))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.message").value("Authentication is required"))
-                .andExpect(jsonPath("$.data").value(nullValue()));
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -122,7 +115,7 @@ class AuthServiceTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        return JsonPath.read(response, "$.data.accessToken");
+        return JsonPath.read(response, "$.accessToken");
     }
 
     private String expiredAdminToken() {
@@ -146,7 +139,7 @@ class AuthServiceTest {
             return new InMemoryUserDetailsManager(
                     User.withUsername("admin")
                             .password(passwordEncoder.encode("admin"))
-                            .roles("ADMIN")
+                            .roles("USER", "ADMIN")
                             .build()
             );
         }

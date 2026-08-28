@@ -8,10 +8,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pl.atakowiec.ecommerce.user.account.dto.Role;
-import pl.atakowiec.ecommerce.user.account.dto.UserAccount;
 
 import java.util.Locale;
+import java.util.Set;
 
 @Component
 @ConditionalOnProperty(name = "auth.bootstrap.enabled", havingValue = "true")
@@ -43,22 +42,18 @@ public class InitialUserSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(@NonNull ApplicationArguments args) {
-        createIfMissing(userUsername, userPassword, Role.USER);
-        createIfMissing(adminUsername, adminPassword, Role.ADMIN);
+        createIfMissing(userUsername, userPassword, Set.of(Role.USER));
+        createIfMissing(adminUsername, adminPassword, Set.of(Role.USER, Role.ADMIN));
     }
 
-    private void createIfMissing(String username, String password, Role role) {
+    private void createIfMissing(String username, String password, Set<Role> roles) {
         String normalizedUsername = username.trim().toLowerCase(Locale.ROOT);
-
-        if (userAccountRepository.existsByUsername(normalizedUsername)) {
-            return;
+        if (!userAccountRepository.existsByUsername(normalizedUsername)) {
+            userAccountRepository.save(new UserAccount(
+                    normalizedUsername,
+                    passwordEncoder.encode(password),
+                    roles
+            ));
         }
-
-        userAccountRepository.save(new UserAccount(
-                normalizedUsername + "@cieszczyk.pl",
-                normalizedUsername,
-                passwordEncoder.encode(password),
-                role
-        ));
     }
 }

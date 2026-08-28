@@ -4,7 +4,8 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import pl.atakowiec.ecommerce.shared.response.ApiResponse;
+
+import java.util.Map;
 
 @Getter
 public class HttpException extends RuntimeException {
@@ -19,10 +20,12 @@ public class HttpException extends RuntimeException {
         this(HttpStatus.valueOf(statusCode), message);
     }
 
-    public ResponseEntity<ApiResponse<Void>> toResponseEntity() {
+    public ResponseEntity<Map<String, String>> toResponseEntity() {
         return ResponseEntity
                 .status(httpStatus)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(ApiResponse.error(httpStatus, getMessage()));
+                .body(Map.of("error", httpStatus.getReasonPhrase(),
+                        "message", getMessage(),
+                        "status", String.valueOf(httpStatus.value())));
     }
 }

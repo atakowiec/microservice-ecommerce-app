@@ -10,7 +10,7 @@ export interface LoginResponse {
   tokenType: string;
   expiresIn: number;
   username: string;
-  role: UserRole;
+  roles: UserRole[];
 }
 
 export interface AuthSession extends LoginResponse {

@@ -29,8 +29,6 @@ spec:
               value: http://order-service:8082
             - name: NOTIFICATION_SERVICE_URL
               value: http://notification-service:8083
-            - name: FRONTEND_URL
-              value: https://ecommerce.cieszczyk.pl
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:

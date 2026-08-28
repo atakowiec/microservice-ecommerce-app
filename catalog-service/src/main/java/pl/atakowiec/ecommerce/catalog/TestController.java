@@ -1,4 +1,4 @@
-package pl.atakowiec.ecommerce.order;
+package pl.atakowiec.ecommerce.catalog;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ public class TestController {
     @GetMapping("/test")
     public Map<String, Object> test(@RequestHeader HttpHeaders headers) {
         return Map.of(
-                "service", "order-service",
+                "service", "catalog-service",
                 "status", "ok",
                 "headers", headers
         );

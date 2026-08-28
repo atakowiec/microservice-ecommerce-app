@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.atakowiec.ecommerce.user.auth.dto.LoginRequest;
 import pl.atakowiec.ecommerce.user.auth.dto.LoginResponse;
-import pl.atakowiec.ecommerce.shared.response.ApiResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,7 +19,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ApiResponse.ok("Login successful", authService.login(request));
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }

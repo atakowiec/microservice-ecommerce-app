@@ -15,7 +15,7 @@ describe('AdminLoginPageComponent', () => {
     expiresIn: 3_600,
     expiresAt: Date.now() + 3_600_000,
     username: 'admin@example.com',
-    role: 'ADMIN',
+    roles: ['ADMIN'],
   };
 
   let fixture: ComponentFixture<AdminLoginPageComponent>;

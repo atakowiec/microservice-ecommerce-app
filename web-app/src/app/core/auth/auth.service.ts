@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { ApiResponse } from '../api/api-response.model';
 import { API_ROUTES } from '../api/api.routes';
 import {
   AuthSession,
@@ -23,21 +22,18 @@ export class AuthService {
   readonly username = computed(() => this.sessionState()?.username ?? null);
 
   login(credentials: LoginCredentials): Observable<AuthSession> {
-    return this.http
-      .post<ApiResponse<LoginResponse>>(API_ROUTES.auth.login, credentials)
-      .pipe(
-        map((response) => response.data),
-        map((loginResponse) => {
-          const session: AuthSession = {
-            ...loginResponse,
-            expiresAt: Date.now() + loginResponse.expiresIn * 1_000,
-          };
+    return this.http.post<LoginResponse>(API_ROUTES.auth.login, credentials).pipe(
+      map((response) => {
+        const session: AuthSession = {
+          ...response,
+          expiresAt: Date.now() + response.expiresIn * 1_000,
+        };
 
-          sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-          this.sessionState.set(session);
-          return session;
-        }),
-      );
+        sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        this.sessionState.set(session);
+        return session;
+      }),
+    );
   }
 
   logout(): void {
@@ -46,7 +42,7 @@ export class AuthService {
   }
 
   hasRole(role: UserRole): boolean {
-    return this.sessionState()?.role == role;
+    return this.sessionState()?.roles.includes(role) ?? false;
   }
 
   getAccessToken(): string | null {
@@ -73,6 +69,7 @@ export class AuthService {
       if (
         typeof session.accessToken !== 'string' ||
         typeof session.username !== 'string' ||
+        !Array.isArray(session.roles) ||
         this.isExpired(session)
       ) {
         sessionStorage.removeItem(SESSION_STORAGE_KEY);
