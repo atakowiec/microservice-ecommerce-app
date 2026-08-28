@@ -1,6 +1,6 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { adminGuard, adminLoginGuard } from './core/auth/auth.guard';
+import {adminGuard, adminLoginGuard} from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
@@ -44,6 +44,22 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/pages/dashboard/admin-dashboard-page.component').then(
             (component) => component.AdminDashboardPageComponent,
+          ),
+      },
+      {
+        path: 'users',
+        title: 'User Management',
+        loadComponent: () =>
+          import('./features/admin/pages/users/admin-users-page.component').then(
+            (component) => component.AdminUsersPageComponent,
+          ),
+      },
+      {
+        path: 'products',
+        title: 'Products List',
+        loadComponent: () =>
+          import('./features/admin/pages/products/admin-products-page.component').then(
+            (component) => component.AdminProductsPageComponent,
           ),
       },
     ],

@@ -8,6 +8,7 @@ resources:
   - user-service/user-service.yaml
   - order-service/order-service.yaml
   - notification-service/notification-service.yaml
+  - web-app/web-app.yaml
   - api-gateway/api-gateway-service.yaml
   - api-gateway/api-gateway-ingress.yaml
 images:
@@ -20,4 +21,6 @@ images:
   - name: atakowiec/order-service
     newTag: "latest"
   - name: atakowiec/notification-service
+    newTag: "latest"
+  - name: atakowiec/web-app
     newTag: "latest"

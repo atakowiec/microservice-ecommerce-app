@@ -1,4 +1,5 @@
 def services = [
+    'web-app',
     'api-gateway',
     'user-service',
     'catalog-service',
@@ -26,10 +27,10 @@ pipeline {
                 script {
                     services.each { service ->
                         echo "Building ${service}"
-                        if (service == 'user-service') {
-                            sh "docker build -f user-service/Dockerfile -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ."
-                        } else {
+                        if (service == 'web-app') {
                             sh "docker build -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ${service}"
+                        } else {
+                            sh "docker build -f ${service}/Dockerfile -t ${IMAGE_REGISTRY}/${service}:${BUILD_NUMBER} ."
                         }
                     }
                 }
@@ -79,7 +80,8 @@ pipeline {
                                 kubectl -n ecommerce rollout status deployment/user-service --timeout=180s &&
                                 kubectl -n ecommerce rollout status deployment/catalog-service --timeout=180s &&
                                 kubectl -n ecommerce rollout status deployment/notification-service --timeout=180s &&
-                                kubectl -n ecommerce rollout status deployment/order-service --timeout=180s
+                                kubectl -n ecommerce rollout status deployment/order-service --timeout=180s &&
+                                kubectl -n ecommerce rollout status deployment/web-app --timeout=180s
                             '
                         """
                     }

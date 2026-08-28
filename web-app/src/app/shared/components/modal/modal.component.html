@@ -1,0 +1,41 @@
+<dialog
+  #dialog
+  class="app-modal"
+  [class.app-modal--small]="size() === 'small'"
+  [class.app-modal--large]="size() === 'large'"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="description() ? descriptionId : null"
+  [attr.data-testid]="testId('modal')"
+  (cancel)="onCancel($event)"
+  (click)="onBackdropClick($event)"
+  (close)="onNativeClose()"
+>
+  <section class="app-modal__panel">
+    <header class="app-modal__header">
+      <div>
+        <h2 [id]="titleId">{{ title() }}</h2>
+        @if (description()) {
+          <p [id]="descriptionId">{{ description() }}</p>
+        }
+      </div>
+
+      <button
+        class="app-modal__close"
+        type="button"
+        aria-label="Close modal"
+        [attr.data-testid]="testId('close')"
+        (click)="close('close-button')"
+      >
+        &times;
+      </button>
+    </header>
+
+    <div class="app-modal__body">
+      <ng-content />
+    </div>
+
+    <footer class="app-modal__footer">
+      <ng-content select="[modal-footer]" />
+    </footer>
+  </section>
+</dialog>

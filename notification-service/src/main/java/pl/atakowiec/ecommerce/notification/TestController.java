@@ -4,17 +4,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import pl.atakowiec.ecommerce.shared.response.ApiResponse;
 
 import java.util.Map;
 
 @RestController
 public class TestController {
     @GetMapping("/test")
-    public Map<String, Object> test(@RequestHeader HttpHeaders headers) {
-        return Map.of(
+    public ApiResponse<Map<String, Object>> test(@RequestHeader HttpHeaders headers) {
+        return ApiResponse.ok("Notification service is available", Map.of(
                 "service", "notification-service",
-                "status", "ok",
                 "headers", headers
-        );
+        ));
     }
 }

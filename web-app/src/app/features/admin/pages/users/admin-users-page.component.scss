@@ -1,0 +1,16 @@
+.users-toolbar {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.users-toolbar input {
+  flex-basis: 200%;
+}
+
+.role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
