@@ -1,4 +1,4 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 
 import {AdminProductsPageComponent} from './admin-products-page.component';
 import {
@@ -6,7 +6,8 @@ import {
   AdminProductSortColumn,
 } from "../../data-access/product/admin-product.service";
 import AdminProduct, {AdminProductCategory} from "../../data-access/product/admin-product.model";
-import {of} from "rxjs";
+import {of, throwError} from "rxjs";
+import {provideRouter} from "@angular/router";
 
 describe('AdminProductsPageComponent', () => {
   let categories: AdminProductCategory[];
@@ -19,7 +20,11 @@ describe('AdminProductsPageComponent', () => {
   beforeEach(async () => {
     categories = getInitCategories();
     products = getInitProducts();
-    productsService = jasmine.createSpyObj<AdminProductService>("AdminProductService", ["findProducts"])
+    productsService = jasmine.createSpyObj<AdminProductService>("AdminProductService", [
+      "findProducts",
+      "findCategories",
+      "createProduct",
+    ])
 
     productsService.findProducts.and.callFake((
       page = 0,
@@ -54,10 +59,26 @@ describe('AdminProductsPageComponent', () => {
         data: sortedProducts.slice(page * size, (page + 1) * size)
       });
     })
+    productsService.findCategories.and.returnValue(of(categories));
+    productsService.createProduct.and.callFake(request => {
+      const createdProduct: AdminProduct = {
+        id: "created-product",
+        productName: request.productName,
+        ean: "9000000000001",
+        stock: request.stock,
+        price: request.price,
+        category: categories.find(category => category.id === request.categoryId)!,
+      };
+      products.push(createdProduct);
+      return of(createdProduct);
+    });
 
     await TestBed.configureTestingModule({
       imports: [AdminProductsPageComponent],
-      providers: [{provide: AdminProductService, useValue: productsService}]
+      providers: [
+        {provide: AdminProductService, useValue: productsService},
+        provideRouter([]),
+      ]
     })
       .compileComponents();
 
@@ -182,11 +203,94 @@ describe('AdminProductsPageComponent', () => {
     expect(fixture.nativeElement.querySelector('.admin-table')).toBeNull();
   });
 
+  it('allows selecting an existing product on its separate detail page', () => {
+    const link = getElement<HTMLAnchorElement>('product-detail-link-1');
+
+    expect(link.getAttribute('href')).toBe('/admin/products/1');
+    expect(link.innerText.trim()).toBe('View / edit');
+  });
+
+  it('shows a Create Product action and all product fields', () => {
+    getElement<HTMLButtonElement>('create-product-button').click();
+    fixture.detectChanges();
+
+    expect(getElement<HTMLInputElement>('product-form-name')).toBeTruthy();
+    expect(getElement<HTMLTextAreaElement>('product-form-description')).toBeTruthy();
+    expect(getElement<HTMLInputElement>('product-form-price')).toBeTruthy();
+    expect(getElement<HTMLInputElement>('product-form-images')).toBeTruthy();
+    expect(getElement<HTMLSelectElement>('product-form-category')).toBeTruthy();
+    expect(getElement<HTMLInputElement>('product-form-stock')).toBeTruthy();
+    expect(getElement<HTMLSelectElement>('product-form-status')).toBeTruthy();
+  });
+
+  it('shows validation errors and does not submit invalid product data', () => {
+    getElement<HTMLButtonElement>('create-product-button').click();
+    getElement<HTMLButtonElement>('product-form-submit').click();
+    fixture.detectChanges();
+
+    expect(getElement<HTMLElement>('product-form-name-error').innerText.trim())
+      .toBe('Product name is required.');
+    expect(getElement<HTMLElement>('product-form-price-error').innerText.trim())
+      .toBe('Price is required.');
+    expect(getElement<HTMLElement>('product-form-category-error').innerText.trim())
+      .toBe('Category is required.');
+
+    setFormValue('product-form-name', 'Invalid Product');
+    setFormValue('product-form-price', '0');
+    setFormValue('product-form-stock', '-1');
+    fixture.detectChanges();
+
+    expect(getElement<HTMLElement>('product-form-price-error').innerText.trim())
+      .toBe('Price must be greater than 0.');
+    expect(getElement<HTMLElement>('product-form-stock-error').innerText.trim())
+      .toBe('Stock cannot be negative.');
+    expect(productsService.createProduct).not.toHaveBeenCalled();
+  });
+
+  it('creates a complete product, refreshes the list, and shows success', fakeAsync(() => {
+    getElement<HTMLButtonElement>('create-product-button').click();
+    const image = new File(["image-content"], "product.png", {type: "image/png"});
+    fillValidProductForm(image);
+
+    getElement<HTMLButtonElement>('product-form-submit').click();
+    tick();
+    fixture.detectChanges();
+
+    const request = productsService.createProduct.calls.mostRecent().args[0];
+    expect(request.productName).toBe('Z Product');
+    expect(request.description).toBe('Product description');
+    expect(request.price).toBe(99.99);
+    expect(request.categoryId).toBe(categories[1].id);
+    expect(request.stock).toBe(12);
+    expect(request.status).toBe('ACTIVE');
+    expect(request.images).toEqual([image]);
+    expect(productsService.findProducts).toHaveBeenCalledTimes(2);
+    expect(getRenderedProductNames()).toContain('Z Product');
+    expect(getElement<HTMLElement>('product-create-success').innerText.trim())
+      .toBe('Product created successfully.');
+  }));
+
+  it('shows the duplicate-name error returned by the backend', fakeAsync(() => {
+    productsService.createProduct.and.returnValue(throwError(() => ({
+      status: 409,
+      error: {message: 'A product with this name already exists'},
+    })));
+    getElement<HTMLButtonElement>('create-product-button').click();
+    fillValidProductForm();
+
+    getElement<HTMLButtonElement>('product-form-submit').click();
+    tick();
+    fixture.detectChanges();
+
+    expect(getElement<HTMLElement>('product-form-server-error').innerText.trim())
+      .toBe('A product with this name already exists');
+  }));
+
   function getRenderedProducts(): string[] {
     return Array.from(fixture.nativeElement.querySelectorAll("[data-testid='product-list-item']") as NodeListOf<HTMLTableRowElement>)
       .map(row =>
         Array.from(row.querySelectorAll("td") as NodeListOf<HTMLElement>)
-          .filter(td => !td.querySelector("button"))
+          .filter(td => !td.querySelector("button, a"))
           .map(cell => cell.innerText.trim())
           .join("|")
       )
@@ -218,6 +322,30 @@ describe('AdminProductsPageComponent', () => {
 
     expect(productsService.findProducts).toHaveBeenCalledWith(0, 20, "name", "asc", query);
     expect(getRenderedProductNames()).toEqual(expectedNames);
+  }
+
+  function setFormValue(testId: string, value: string): void {
+    const control = getElement<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(testId);
+    control.value = value;
+    control.dispatchEvent(new Event(control instanceof HTMLSelectElement ? 'change' : 'input'));
+  }
+
+  function fillValidProductForm(image?: File): void {
+    setFormValue('product-form-name', 'Z Product');
+    setFormValue('product-form-description', 'Product description');
+    setFormValue('product-form-price', '99.99');
+    setFormValue('product-form-category', categories[1].id);
+    setFormValue('product-form-stock', '12');
+    setFormValue('product-form-status', 'ACTIVE');
+
+    if (image) {
+      const imageInput = getElement<HTMLInputElement>('product-form-images');
+      const files = new DataTransfer();
+      files.items.add(image);
+      Object.defineProperty(imageInput, 'files', {value: files.files});
+      imageInput.dispatchEvent(new Event('change'));
+    }
+    fixture.detectChanges();
   }
 
   function getInitProducts(): AdminProduct[] {

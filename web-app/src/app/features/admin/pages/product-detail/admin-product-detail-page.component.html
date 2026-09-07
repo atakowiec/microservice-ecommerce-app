@@ -1,0 +1,214 @@
+<section class="admin-page product-detail" aria-labelledby="product-detail-heading">
+    <a class="product-detail__back"
+       routerLink="/admin/products"
+       data-testid="product-detail-back">← Back to products</a>
+
+    @switch (state()) {
+        @case ('loading') {
+            <div class="admin-status" aria-live="polite">Loading product...</div>
+        }
+        @case ('not-found') {
+            <div class="admin-status admin-alert"
+                 role="alert"
+                 data-testid="product-detail-not-found">Product not found.</div>
+        }
+        @case ('error') {
+            <div class="admin-status admin-alert" role="alert">
+                Unable to load the product. Please try again later.
+            </div>
+        }
+        @case ('loaded') {
+            @if (product(); as currentProduct) {
+                <div class="product-detail__heading">
+                    <div>
+                        <p class="eyebrow">Product details</p>
+                        <h1 id="product-detail-heading" data-testid="product-detail-name">
+                            {{ currentProduct.productName }}
+                        </h1>
+                    </div>
+                    @if (!editMode()) {
+                        <button class="button button--primary"
+                                type="button"
+                                data-testid="product-edit-button"
+                                (click)="startEditing()">Edit Product</button>
+                    }
+                </div>
+
+                @if (successMessage()) {
+                    <div class="admin-status"
+                         role="status"
+                         data-testid="product-update-success">{{ successMessage() }}</div>
+                }
+
+                @if (editMode()) {
+                    <form class="product-update-form"
+                          [formGroup]="updateForm"
+                          (ngSubmit)="submitUpdate()">
+                        <label>
+                            Product name
+                            <input type="text"
+                                   formControlName="productName"
+                                   data-testid="product-update-name">
+                        </label>
+                        @if (updateForm.controls.productName.touched && updateForm.controls.productName.hasError('required')) {
+                            <p class="field-error" data-testid="product-update-name-error">Product name is required.</p>
+                        }
+
+                        <label>
+                            Description
+                            <textarea rows="5"
+                                      formControlName="description"
+                                      data-testid="product-update-description"></textarea>
+                        </label>
+
+                        <div class="product-update-form__columns">
+                            <div>
+                                <label>
+                                    Price
+                                    <input type="number"
+                                           min="0.01"
+                                           step="0.01"
+                                           formControlName="price"
+                                           data-testid="product-update-price">
+                                </label>
+                                @if (updateForm.controls.price.touched) {
+                                    @if (updateForm.controls.price.hasError('required')) {
+                                        <p class="field-error" data-testid="product-update-price-error">Price is required.</p>
+                                    } @else if (updateForm.controls.price.hasError('min')) {
+                                        <p class="field-error" data-testid="product-update-price-error">Price must be greater than 0.</p>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <label>
+                                    Stock quantity
+                                    <input type="number"
+                                           min="0"
+                                           step="1"
+                                           formControlName="stock"
+                                           data-testid="product-update-stock">
+                                </label>
+                                @if (updateForm.controls.stock.touched) {
+                                    @if (updateForm.controls.stock.hasError('required')) {
+                                        <p class="field-error" data-testid="product-update-stock-error">Stock is required.</p>
+                                    } @else if (updateForm.controls.stock.hasError('min')) {
+                                        <p class="field-error" data-testid="product-update-stock-error">Stock cannot be negative.</p>
+                                    } @else if (updateForm.controls.stock.hasError('pattern')) {
+                                        <p class="field-error" data-testid="product-update-stock-error">Stock must be a whole number.</p>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <div class="product-update-form__columns">
+                            <div>
+                                <label>
+                                    Category
+                                    <select formControlName="categoryId"
+                                            data-testid="product-update-category">
+                                        <option value="">Select category</option>
+                                        @for (category of categories$ | async; track category.id) {
+                                            <option [value]="category.id">{{ category.name }}</option>
+                                        }
+                                    </select>
+                                </label>
+                                @if (updateForm.controls.categoryId.touched && updateForm.controls.categoryId.hasError('required')) {
+                                    <p class="field-error" data-testid="product-update-category-error">Category is required.</p>
+                                }
+                            </div>
+                            <label>
+                                Status
+                                <select formControlName="status"
+                                        data-testid="product-update-status">
+                                    @for (status of productStatuses; track status) {
+                                        <option [value]="status">{{ status }}</option>
+                                    }
+                                </select>
+                            </label>
+                        </div>
+
+                        <label>
+                            Replacement image / thumbnail
+                            <input type="file"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   data-testid="product-update-image"
+                                   (change)="selectImage($event)">
+                        </label>
+                        <p class="product-update-form__hint">
+                            Leave this empty to keep the current product image.
+                        </p>
+
+                        @if (serverError()) {
+                            <div class="form-error"
+                                 role="alert"
+                                 data-testid="product-update-server-error">{{ serverError() }}</div>
+                        }
+
+                        <div class="product-update-form__actions">
+                            <button class="button button--secondary"
+                                    type="button"
+                                    data-testid="product-update-cancel"
+                                    (click)="cancelUpdate()">Cancel</button>
+                            <button class="button button--primary"
+                                    type="submit"
+                                    data-testid="product-update-submit"
+                                    [disabled]="submitting()">
+                                {{ submitting() ? 'Saving...' : 'Save changes' }}
+                            </button>
+                        </div>
+                    </form>
+                } @else {
+                    <dl class="product-detail__grid">
+                        <div>
+                            <dt>Description</dt>
+                            <dd data-testid="product-detail-description">{{ currentProduct.description || 'No description' }}</dd>
+                        </div>
+                        <div>
+                            <dt>EAN</dt>
+                            <dd data-testid="product-detail-ean">{{ currentProduct.ean }}</dd>
+                        </div>
+                        <div>
+                            <dt>Price</dt>
+                            <dd data-testid="product-detail-price">${{ currentProduct.price.toFixed(2) }}</dd>
+                        </div>
+                        <div>
+                            <dt>Category</dt>
+                            <dd data-testid="product-detail-category">{{ currentProduct.category.name }}</dd>
+                        </div>
+                        <div>
+                            <dt>Stock</dt>
+                            <dd data-testid="product-detail-stock">{{ currentProduct.stock }}</dd>
+                        </div>
+                        <div>
+                            <dt>Status</dt>
+                            <dd data-testid="product-detail-status">{{ currentProduct.status || 'DRAFT' }}</dd>
+                        </div>
+                        <div class="product-detail__images">
+                            <dt>Images</dt>
+                            <dd>
+                                @if (displayedImages().length) {
+                                    @for (image of displayedImages(); track image.id) {
+                                        <figure class="product-detail__image">
+                                            @if (image.url) {
+                                                <img [src]="image.url"
+                                                     [alt]="image.fileName"
+                                                     data-testid="product-detail-image">
+                                            } @else {
+                                                <div class="product-detail__image-placeholder">
+                                                    Loading image...
+                                                </div>
+                                            }
+                                            <figcaption>{{ image.fileName }}</figcaption>
+                                        </figure>
+                                    }
+                                } @else {
+                                    No images
+                                }
+                            </dd>
+                        </div>
+                    </dl>
+                }
+            }
+        }
+    }
+</section>

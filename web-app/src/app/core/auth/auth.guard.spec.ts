@@ -51,6 +51,18 @@ describe('admin route guards', () => {
     );
   });
 
+  it('redirects a non-admin away from a product update URL and retains the return URL', () => {
+    auth.getAccessToken.and.returnValue('user-token');
+    auth.hasRole.and.returnValue(false);
+
+    const result = runGuard(adminGuard, '/admin/products/product-1');
+
+    expect(result instanceof UrlTree).toBeTrue();
+    expect(router.serializeUrl(result as UrlTree)).toBe(
+      '/admin/login?returnUrl=%2Fadmin%2Fproducts%2Fproduct-1',
+    );
+  });
+
   function runGuard(
     guard: typeof adminGuard | typeof adminLoginGuard,
     url: string,

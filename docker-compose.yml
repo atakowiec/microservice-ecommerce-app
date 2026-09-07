@@ -95,6 +95,11 @@ services:
     environment:
       MONGODB_URI: mongodb://catalog_service:catalog_service_password@catalog-mongodb:27017/catalog_service_db?authSource=admin
       JWT_SECRET: ${JWT_SECRET:-+Ko8oNC676s6D5pEdWC3BbvvFV/ZYBX1F9gjTU/n5Ts=}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
     ports:
       - "8081:8081"
 

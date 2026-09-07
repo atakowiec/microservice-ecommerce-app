@@ -55,6 +55,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products/:productId',
+        title: 'Product Details',
+        loadComponent: () =>
+          import('./features/admin/pages/product-detail/admin-product-detail-page.component').then(
+            (component) => component.AdminProductDetailPageComponent,
+          ),
+      },
+      {
         path: 'products',
         title: 'Products List',
         loadComponent: () =>

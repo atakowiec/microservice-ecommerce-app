@@ -1,9 +1,139 @@
-<section class="admin-page" aria-labelledby="users-heading">
-    <p class="eyebrow">Product list</p>
-    <h1 id="users-heading">Product list</h1>
+<app-modal title="Create Product"
+           description="Add a product to the catalog."
+           size="large"
+           testIdPrefix="create-product"
+           [open]="createProductModalOpen()"
+           (openChange)="createProductModalOpen.set($event)"
+           (closed)="resetCreateProductForm()">
+    <form class="product-form"
+          [formGroup]="createProductForm"
+          (ngSubmit)="submitCreateProduct()">
+        <label>
+            Product name
+            <input type="text"
+                   formControlName="productName"
+                   data-testid="product-form-name">
+        </label>
+        @if (createProductForm.controls.productName.touched && createProductForm.controls.productName.hasError("required")) {
+            <p class="field-error" data-testid="product-form-name-error">Product name is required.</p>
+        }
+
+        <label>
+            Description
+            <textarea rows="4"
+                      formControlName="description"
+                      data-testid="product-form-description"></textarea>
+        </label>
+
+        <div class="product-form__columns">
+            <div>
+                <label>
+                    Price
+                    <input type="number"
+                           min="0.01"
+                           step="0.01"
+                           formControlName="price"
+                           data-testid="product-form-price">
+                </label>
+                @if (createProductForm.controls.price.touched) {
+                    @if (createProductForm.controls.price.hasError("required")) {
+                        <p class="field-error" data-testid="product-form-price-error">Price is required.</p>
+                    } @else if (createProductForm.controls.price.hasError("min")) {
+                        <p class="field-error" data-testid="product-form-price-error">Price must be greater than 0.</p>
+                    }
+                }
+            </div>
+
+            <div>
+                <label>
+                    Stock quantity
+                    <input type="number"
+                           min="0"
+                           step="1"
+                           formControlName="stock"
+                           data-testid="product-form-stock">
+                </label>
+                @if (createProductForm.controls.stock.touched && createProductForm.controls.stock.hasError("min")) {
+                    <p class="field-error" data-testid="product-form-stock-error">Stock cannot be negative.</p>
+                }
+            </div>
+        </div>
+
+        <div class="product-form__columns">
+            <div>
+                <label>
+                    Category
+                    <select formControlName="categoryId"
+                            data-testid="product-form-category">
+                        <option value="">Select category</option>
+                        @for (category of categories$ | async; track category.id) {
+                            <option [value]="category.id">{{ category.name }}</option>
+                        }
+                    </select>
+                </label>
+                @if (createProductForm.controls.categoryId.touched && createProductForm.controls.categoryId.hasError("required")) {
+                    <p class="field-error" data-testid="product-form-category-error">Category is required.</p>
+                }
+            </div>
+
+            <label>
+                Status
+                <select formControlName="status"
+                        data-testid="product-form-status">
+                    @for (status of productStatuses; track status) {
+                        <option [value]="status">{{ status }}</option>
+                    }
+                </select>
+            </label>
+        </div>
+
+        <label>
+            Product images
+            <input type="file"
+                   accept="image/*"
+                   multiple
+                   data-testid="product-form-images"
+                   (change)="selectProductImages($event)">
+        </label>
+
+        @if (createProductServerError()) {
+            <div class="form-error"
+                 role="alert"
+                 data-testid="product-form-server-error">
+                {{ createProductServerError() }}
+            </div>
+        }
+
+        <div class="product-form__actions">
+            <button class="button button--primary"
+                    type="submit"
+                    data-testid="product-form-submit"
+                    [disabled]="createProductSubmitting()">
+                {{ createProductSubmitting() ? "Creating..." : "Create Product" }}
+            </button>
+        </div>
+    </form>
+</app-modal>
+
+<section class="admin-page" aria-labelledby="products-heading">
+    <p class="eyebrow">Product management</p>
+    <h1 id="products-heading">Products</h1>
     <p class="admin-page__description">
         View every product in the store.
     </p>
+    <button class="button button--secondary button--small products-create-button"
+            type="button"
+            data-testid="create-product-button"
+            (click)="openCreateProduct()">
+        Create Product
+    </button>
+    @if (createProductSuccess()) {
+        <div class="admin-status"
+             role="status"
+             data-testid="product-create-success">
+            {{ createProductSuccess() }}
+        </div>
+    }
 
     <form class="products-search" (submit)="searchProducts(); $event.preventDefault()">
         <label for="products-search">Search products</label>
@@ -86,6 +216,7 @@
                                     </button>
                                 </th>
                             }
+                            <th scope="col">Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -96,6 +227,13 @@
                                     <td>{{ product.stock }}</td>
                                     <td>{{ product.category.name }}</td>
                                     <td>${{ product.price.toFixed(2) }}</td>
+                                    <td>
+                                        <a class="button button--secondary button--small"
+                                           [routerLink]="['/admin/products', product.id]"
+                                           [attr.data-testid]="'product-detail-link-' + product.id">
+                                            View / edit
+                                        </a>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
